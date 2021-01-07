@@ -1,46 +1,65 @@
 package com.piggymetrics.classes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.piggymetrics.classes.dao.interfaces.UserDao;
 import com.piggymetrics.classes.interfaces.User;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
 
 @Component
-@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+@Getter
+@Setter
 public class PiggyUser implements User {
 
     @Autowired
+    @JsonIgnore
     private UserDao userDao;
 
-    @Getter @Setter private boolean authorized;
-    @Getter @Setter private boolean capitalization;
-    @Getter @Setter private boolean deposit;
+    private boolean authorized;
+    private boolean capitalization;
+    private boolean deposit;
 
-    @Getter @Setter private String username;
-    @Getter @Setter private String currency;
-    @Getter @Setter private String userpic;
-    @Getter @Setter private String email;
-    @Getter @Setter private String emailHash;
-    @Getter @Setter private String lastVisit;
-    @Getter @Setter private String lastMail;
-    @Getter @Setter private String data;
-    @Getter @Setter private String note;
+    @JsonIgnore
+    private String emailHash;
+    @JsonIgnore
+    private String lastMail;
 
-    @Getter @Setter private Integer interest;
-    @Getter @Setter private Integer money;
-    @Getter @Setter private Integer mailing;
+    private String username;
+    private String checkedCurrency;
+    private String lastCurrency;
+    private String userpic;
+    private String email;
+    private String lastVisit;
+    private String data;
+    private String note;
 
-    @Getter @Setter private Double sliderValue;
+    private Integer interest;
+    private Integer money;
+    private Integer mailing;
 
-    public void setByName(String username) {
+    private Double sliderValue;
+
+    public void fillByName(String username) {
         userDao.select(username);
-        userDao.updateLastVisit();
+        userDao.updateLastVisit(); //@todo сюда же IP
 
         setAuthorized(true);
+    }
+
+    public String getLastVisit() {
+
+//        DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+
+//        DateTime date = formatter.parseDateTime(this.lastVisit);
+//        DateTimeFormatter fmt = DateTimeFormat.forPattern("d/MMMM/yyyy");
+
+//        System.out.println(date);
+        return "01/05/2015";
     }
 }
