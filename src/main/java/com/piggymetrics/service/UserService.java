@@ -1,27 +1,25 @@
 package com.piggymetrics.service;
 
 import com.piggymetrics.dao.interfaces.UserDao;
+import com.piggymetrics.helpers.LangMessage;
 import com.piggymetrics.model.User;
 import com.piggymetrics.service.interfaces.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.StandardPasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Locale;
 
 @Service
-public class UserService implements UserServiceInterface, MessageSourceAware {
+public class UserService implements UserServiceInterface {
 
     @Autowired
     @Qualifier("authenticationManager")
@@ -30,13 +28,8 @@ public class UserService implements UserServiceInterface, MessageSourceAware {
     @Autowired
     private UserDao userDao;
 
-    private Locale locale = LocaleContextHolder.getLocale();
-    private MessageSource messageSource;
-
-    @Override
-    public void setMessageSource(MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
+    @Autowired
+    private LangMessage lang;
 
     @Transactional
     public User getUser(String username, HttpServletRequest request) {
@@ -45,16 +38,16 @@ public class UserService implements UserServiceInterface, MessageSourceAware {
         userDao.updateVisit(username, request.getRemoteAddr(), request.getLocale().getLanguage());
 
         if (user.getUserpic() == null) {
-            user.setUserpic(messageSource.getMessage("userpic", null, locale));
+            user.setUserpic(lang.get("userpic", request));
         }
 
         return user;
     }
 
     @Transactional
-    public User getDemoUser() {
+    public User getDemoUser(HttpServletRequest request) {
 
-        User user = userDao.select(messageSource.getMessage("demo", null, locale));
+        User user = userDao.select(lang.get("demo", request));
         user.setUsername("Demo");
 
         return user;
@@ -63,6 +56,11 @@ public class UserService implements UserServiceInterface, MessageSourceAware {
     @Transactional
     public void saveChanges(String username, User user) {
         userDao.update(username, user);
+    }
+
+    @Transactional
+    public void saveEmail(String username, User user) {
+        userDao.saveEmail(username, user);
     }
 
     @Transactional

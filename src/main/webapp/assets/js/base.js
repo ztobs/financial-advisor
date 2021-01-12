@@ -1,15 +1,13 @@
 // From json to objects
 function jsonParse(obj) {
-	console.log(obj);
 	if (typeof obj != 'undefined') {
+
 		user = new User (obj.username, obj.lastVisit, obj.userpic, obj.usd, obj.eur, obj.checkedCurrency, obj.lastCurrency, obj.sliderValue, obj.note); //@todo убрать 60 и 70
 		savings = new Savings (obj.money, !!Number(obj.deposit), !!Number(obj.capitalization), obj.interest);
 
 		if (obj.data !== null) {
 			expenses = JSON.parse(obj.data).expenses;
 			incomes = JSON.parse(obj.data).incomes;
-		} else {
-			incomes = expenses = {};
 		}
 	}
 }
@@ -844,6 +842,7 @@ function launchStatistic() {
 // Save all data on server
 function jsonDataSave() {
 	if (user.login !== undefined && savePermit) {
+
 		var saveOptions = {
 			datatype: 	"json",
 			data: {
@@ -858,9 +857,13 @@ function jsonDataSave() {
 				data: JSON.stringify({incomes: incomes, expenses: expenses})
 			}
 		};
+
 		$("#saveoptions").ajaxSubmit(saveOptions);
 		$("#leftborder, #rightborder, #centerborder").addClass("saveaction");
-		setTimeout(function() { $("#leftborder, #rightborder, #centerborder").removeClass("saveaction"); }, 400);
+
+		setTimeout(function() {
+			$("#leftborder, #rightborder, #centerborder").removeClass("saveaction");
+		}, 400);
 	}
 }
 

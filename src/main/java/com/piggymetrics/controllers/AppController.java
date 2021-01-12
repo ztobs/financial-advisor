@@ -2,11 +2,11 @@ package com.piggymetrics.controllers;
 
 import com.piggymetrics.model.User;
 import com.piggymetrics.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
@@ -36,10 +36,10 @@ public class AppController {
     }
 
 	@RequestMapping("/demo")
-	public String launchDemoApp(ModelMap model) {
+	public String launchDemoApp(ModelMap model, HttpServletRequest request) {
 
         try {
-            User demo = userService.getDemoUser();
+            User demo = userService.getDemoUser(request);
             model.addAttribute("user", mapper.writeValueAsString(demo));
             model.addAttribute("authorized", true);
             model.addAttribute("demo", true);
