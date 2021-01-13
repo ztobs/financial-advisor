@@ -1,10 +1,10 @@
 package com.piggymetrics.controllers;
 
 import com.piggymetrics.helpers.LangMessage;
-import com.piggymetrics.model.User;
+import com.piggymetrics.domain.User;
 import com.piggymetrics.helpers.ResponseBody;
 import com.piggymetrics.service.UserService;
-import org.springframework.context.MessageSource;
+import org.apache.log4j.Logger;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.BindingResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
 
-
 @RestController
 @RequestMapping(value = "/user")
 public class UserController {
@@ -28,25 +27,30 @@ public class UserController {
     @Autowired
     private LangMessage lang;
 
+    static final Logger logger = Logger.getLogger(UserController.class);
+
     @Secured("ROLE_USER")
     @RequestMapping("/save/{data}")
     public ResponseBody saveChanges(@PathVariable String data, @Valid User user, BindingResult result, HttpServletRequest request, Principal principal) {
 
         if (result.hasErrors()) {
-            // @todo log an error
+            logger.error(result.getFieldError().getDefaultMessage());
             return new ResponseBody("fail", lang.get(result.getFieldError().getDefaultMessage(), request));
+        } else {
+            user.setUsername(principal.getName());
+            user.setAuthorized(true);
         }
 
         try {
             if (data.equals("email")) {
-                userService.saveEmail(principal.getName(), user);
+                userService.saveEmail(user);
             } else {
-                userService.saveChanges(principal.getName(), user);
+                userService.saveChanges(user, request);
             }
         } catch (DuplicateKeyException e) {
             return new ResponseBody("fail", lang.get("emailExists", request));
         } catch (Exception e) {
-            // @todo log an error
+            logger.error(e);
             return new ResponseBody("fail", lang.get("error", request));
         }
 
@@ -66,7 +70,7 @@ public class UserController {
         } catch (DuplicateKeyException e) {
             return new ResponseBody("fail", lang.get("usernameExists", request));
         } catch (Exception e) {
-            // @todo log an error
+            logger.error(e);
             return new ResponseBody("fail", lang.get("error", request));
         }
     }

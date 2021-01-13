@@ -1,7 +1,6 @@
 package com.piggymetrics.service.interfaces;
 
-import com.piggymetrics.model.User;
-import org.springframework.context.MessageSource;
+import com.piggymetrics.domain.User;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,7 +10,7 @@ public interface UserServiceInterface {
 
     public User getDemoUser(HttpServletRequest request);
 
-    public void saveChanges(String username, User user);
+    public void saveChanges(User user, HttpServletRequest request);
 
     public void addUser(User user, HttpServletRequest request);
 }

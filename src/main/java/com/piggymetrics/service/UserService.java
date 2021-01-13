@@ -2,7 +2,7 @@ package com.piggymetrics.service;
 
 import com.piggymetrics.dao.interfaces.UserDao;
 import com.piggymetrics.helpers.LangMessage;
-import com.piggymetrics.model.User;
+import com.piggymetrics.domain.User;
 import com.piggymetrics.service.interfaces.UserServiceInterface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Locale;
 
 @Service
 public class UserService implements UserServiceInterface {
@@ -35,7 +34,6 @@ public class UserService implements UserServiceInterface {
     public User getUser(String username, HttpServletRequest request) {
 
         User user = userDao.select(username);
-        userDao.updateVisit(username, request.getRemoteAddr(), request.getLocale().getLanguage());
 
         if (user.getUserpic() == null) {
             user.setUserpic(lang.get("userpic", request));
@@ -54,13 +52,13 @@ public class UserService implements UserServiceInterface {
     }
 
     @Transactional
-    public void saveChanges(String username, User user) {
-        userDao.update(username, user);
+    public void saveChanges(User user, HttpServletRequest request) {
+        userDao.update(user, request.getRemoteAddr(), request.getLocale().getLanguage());
     }
 
     @Transactional
-    public void saveEmail(String username, User user) {
-        userDao.saveEmail(username, user);
+    public void saveEmail(User user) {
+        userDao.saveEmail(user);
     }
 
     @Transactional
@@ -70,7 +68,7 @@ public class UserService implements UserServiceInterface {
 
         StandardPasswordEncoder encoder = new StandardPasswordEncoder();
         user.setPassword(encoder.encode(password));
-        userDao.insertUser(user);
+        userDao.insertUser(user, request.getRemoteAddr(), request.getLocale().getLanguage());
 
         authUser(user.getUsername(), password, request);
     }
