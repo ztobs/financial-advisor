@@ -1,7 +1,7 @@
 package com.piggymetrics.controllers;
 
-import com.piggymetrics.helpers.LangMessage;
 import com.piggymetrics.domain.User;
+import com.piggymetrics.helpers.LangMessage;
 import com.piggymetrics.helpers.ResponseBody;
 import com.piggymetrics.service.UserService;
 import org.apache.log4j.Logger;
@@ -50,7 +50,7 @@ public class UserController {
         } catch (DuplicateKeyException e) {
             return new ResponseBody("fail", lang.get("emailExists", request));
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Saving failed", e);
             return new ResponseBody("fail", lang.get("error", request));
         }
 
@@ -70,7 +70,7 @@ public class UserController {
         } catch (DuplicateKeyException e) {
             return new ResponseBody("fail", lang.get("usernameExists", request));
         } catch (Exception e) {
-            logger.error(e);
+            logger.error("Registration failed", e);
             return new ResponseBody("fail", lang.get("error", request));
         }
     }
