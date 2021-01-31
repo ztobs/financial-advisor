@@ -60,7 +60,7 @@
         <form action="../demo" method="post" autocomplete="off">
           <button class="demobutton"><spring:message code="info10"/></button>
         </form>
-        <a id="infofooter" href="https://github.com/sqshq/PiggyMetrics">&copy; 2014 sqshq.com</a>
+        <a id="infofooter" href="https://github.com/sqshq/PiggyMetrics">&copy; 2015 sqshq.com</a>
         <a id="iconsfooter" href="/assets/pages/attribution.html">icons attribution</a>
       </div>
       <div id="regpage">
@@ -70,7 +70,8 @@
         <div id="upload-wrapper"><div id="plusavatar"></div>
           <div align="center">
             <form action="../user/upload" method="post" enctype="multipart/form-data" id="uploadButton" autocomplete="off">
-              <div class="inputWrapper"><input class="fileInput" name="ImageFile" id="imageInput" type="file"/></div>
+              <%--Чтобы включить загрузку картинок, добавь type="file" в инпут:--%>
+              <div class="inputWrapper"><input class="fileInput" name="ImageFile" id="imageInput"/></div>
             </form>
             <div id="output"></div>
           </div>
@@ -88,14 +89,12 @@
         </div>
         <div id="mailform">
           <form action="../user/save/email" id="mail" method="post" autocomplete="off">
-            <input name="email" id="backmailform" placeholder=" электропочта" type="text"/><br>
-            <button class="mailbutton" type="submit" name="mailbutton">Получать напоминания</button>
+            <input name="email" id="backmailform" placeholder=<spring:message code="email"/> type="text"/><br>
+            <button class="mailbutton" type="submit" name="mailbutton"><spring:message code="remind"/></button>
           </form>
-					<span class="mailforminfo">Регистрация прошла успешно.<br>
-					<span class="mailforminfosmall">Мы предлагаем вам ввести адрес электронной почты, чтобы периодически получать напоминания.
-					Именно <i>регулярное</i> наблюдение за состоянием бюджета принесет плоды.</span></span>
-          <%--@todo убрать в ланги!--%>
-          <div id="skipmail"><a href="#">Пропустить этот шаг</a></div>
+					<span class="mailforminfo"><spring:message code="success"/><br>
+					<span class="mailforminfosmall"><spring:message code="remind.text"/></span></span>
+          <div id="skipmail"><a href="#"><spring:message code="step.skip"/></a></div>
         </div>
       </div>
     </div>
