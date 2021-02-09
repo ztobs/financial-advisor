@@ -1,0 +1,24 @@
+zuul:
+  routes:
+    auth-service:
+        path: /uaa/**
+        url: http://localhost:8888
+        stripPrefix: false
+    account-service:
+        path: /accounts/**
+        serviceId: account-service
+        stripPrefix: false
+    statistics-service:
+        path: /statistics/**
+        serviceId: statistics-service
+        stripPrefix: false
+    notification-service:
+        path: /notifications/**
+        serviceId: notification-service
+        stripPrefix: false
+
+logging:
+  level.: INFO
+
+server:
+  port: 7777
