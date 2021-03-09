@@ -1,4 +1,7 @@
-// KNOB circles initialization
+/**
+ * KNOB circles initialization
+ */
+
 $("#inner-circle").knob({
 	"readOnly": true,
 	"width": 223,
@@ -7,6 +10,7 @@ $("#inner-circle").knob({
 	"displayInput": false,
 	"fgColor": "#e6eff1"
 });
+
 $("#outer-circle").data({ "width": 265 }).knob({
 	"readOnly": true,
 	"width": 265,
@@ -15,6 +19,7 @@ $("#outer-circle").data({ "width": 265 }).knob({
 	"displayInput": false,
 	"fgColor": "#a59b9e"
 });
+
 $("#outer-circle-cursor").knob({
 	"cursor": 0.5,
 	"readOnly": true,
@@ -24,6 +29,7 @@ $("#outer-circle-cursor").knob({
 	"displayInput": false,
 	"fgColor":"#898989"
 });
+
 $("#first-circle").data({ "width": 165 }).knob({
 	"readOnly": true,
 	"width": 165,
@@ -32,6 +38,7 @@ $("#first-circle").data({ "width": 165 }).knob({
 	"displayInput": false,
 	"fgColor": "#efefef"
 });
+
 $("#second-circle").data({ "width": 165 }).knob({
 	"readOnly": true,
 	"width": 165,
@@ -40,6 +47,7 @@ $("#second-circle").data({ "width": 165 }).knob({
 	"displayInput": false,
 	"fgColor": "#e0ded5"
 });
+
 $("#third-circle").data({ "width": 165 }).knob({
 	"readOnly": true,
 	"width": 165,
@@ -48,6 +56,7 @@ $("#third-circle").data({ "width": 165 }).knob({
 	"displayInput": false,
 	"fgColor": "#b6aeb0"
 });
+
 $("#first-circle-cursor, #second-circle-cursor, #third-circle-cursor").knob({
 	"cursor": 0.5,
 	"readOnly": true,
@@ -58,16 +67,15 @@ $("#first-circle-cursor, #second-circle-cursor, #third-circle-cursor").knob({
 	"fgColor":"#898989"
 });
 
-// CONVERT items values in one currency per month + fill selects in circles
 function getConverted(column) {
 	var firstitem, seconditem;
 	for (var key in column) {
 		switch (column[key].currency) {
 			case "rub": column[key].converted = column[key].value;
 				break;
-			case "euro": column[key].converted = (column[key].value * user.eur).toFixed(3);
+			case "euro": column[key].converted = (column[key].value * global.eur).toFixed(3);
 				break;
-			case "doll": column[key].converted = (column[key].value * user.usd).toFixed(3);
+			case "doll": column[key].converted = (column[key].value * global.usd).toFixed(3);
 				break;
 		}
 		switch (column[key].period) {
@@ -83,9 +91,9 @@ function getConverted(column) {
 		}
 		switch (user.checkedCurr) {
 			case "rub": break;
-			case "eur": column[key].converted = (column[key].converted / user.eur).toFixed(3);
+			case "eur": column[key].converted = (column[key].converted / global.eur).toFixed(3);
 				break;
-			case "usd": column[key].converted = (column[key].converted / user.usd).toFixed(3);
+			case "usd": column[key].converted = (column[key].converted / global.usd).toFixed(3);
 				break;
 		}
 		if (column == incomes) {
@@ -100,40 +108,39 @@ function getConverted(column) {
 			$("#circle-select-1, #circle-select-2, #circle-select-3").append('<option value="' + (parseInt(column[key].expense_id, 10) + 100) + '">' + escape(column[key].title) + '</option>');
 		}
 	}
-	// Round delta for simplicity interface
+
 	if ( Math.abs(incomesSumMonth-expensesSumMonth) < 10 ) {
 		expensesSumMonth = incomesSumMonth;
 	}
+
 	$('select').trigger('refresh');
 }
 
-// CONVERT VALUES + SET CURRENCY + FUTURE SAVINGS CALCULATIONS + INIT ALL BLOCKS ANIMATIONS
 function initStatisticPage() {
 
-	// CONVERT Savings value if needed
 	changeCurrency = function () {
 		switch (user.checkedCurr) {
 			case "rub":
 				if (user.lastCurr == "rub") { break; }
-				else if (user.lastCurr == "usd") { savings.freeMoney = (savings.freeMoney * user.usd).toFixed(3); }
-				else if (user.lastCurr == "eur") { savings.freeMoney = (savings.freeMoney * user.eur).toFixed(3); }
+				else if (user.lastCurr == "usd") { savings.freeMoney = (savings.freeMoney * global.usd).toFixed(3); }
+				else if (user.lastCurr == "eur") { savings.freeMoney = (savings.freeMoney * global.eur).toFixed(3); }
 				break;
 			case "eur":
 				if (user.lastCurr == "eur") { break; }
-				else if (user.lastCurr == "usd") { savings.freeMoney = (savings.freeMoney * user.usd / user.eur).toFixed(3); }
-				else if (user.lastCurr == "rub") { savings.freeMoney = (savings.freeMoney / user.eur).toFixed(3); }
+				else if (user.lastCurr == "usd") { savings.freeMoney = (savings.freeMoney * global.usd / global.eur).toFixed(3); }
+				else if (user.lastCurr == "rub") { savings.freeMoney = (savings.freeMoney / global.eur).toFixed(3); }
 				break;
 			case "usd":
 				if (user.lastCurr == "usd") { break; }
-				else if (user.lastCurr == "eur") { savings.freeMoney = (savings.freeMoney * user.eur / user.usd).toFixed(3); }
-				else if (user.lastCurr == "rub") { savings.freeMoney = (savings.freeMoney / user.usd).toFixed(3); }
+				else if (user.lastCurr == "eur") { savings.freeMoney = (savings.freeMoney * global.eur / global.usd).toFixed(3); }
+				else if (user.lastCurr == "rub") { savings.freeMoney = (savings.freeMoney / global.usd).toFixed(3); }
 				break;
 		}
 		user.lastCurr = user.checkedCurr;
 	};
+
 	changeCurrency();
 
-	// Init all circles animation
 	initCircle = function (whichcircle, item, beforevalue) {
 		var sum, value, circle;
 		$("#" + whichcircle + "circlediv").show();
@@ -171,29 +178,28 @@ function initStatisticPage() {
 		else initCircle("third", expenses[ $("#expenseslider").data("firstitem") ], 0);
 	}
 
-	// LINES CONTAINER
-	$("#expenses-lines-container").html('<div class="lines-title">' + language.expStructure + ' <span class="grey">(' + separateNumber(expensesSumMonth) + '<span class="greysmall"><span class="greysmallval curr"></span>' + language.perMonth + '</span>)<span></span></div>')
-	$("#incomes-lines-container").html('<div class="lines-title">' + language.incStructure + ' <span class="grey">(' + separateNumber(incomesSumMonth) + '<span class="greysmall"><span class="greysmallval curr"></span>' + language.perMonth + '</span>)<span></span></div>')
-	// Sort id in columns in descending order
-	var incomesIdSorted = Object.keys(incomes).sort(function(a,b){return incomes[b].converted - incomes[a].converted})
-	var expensesIdSorted = Object.keys(expenses).sort(function(a,b){return expenses[b].converted - expenses[a].converted})
-	// Fills lines container
+	$("#expenses-lines-container").html('<div class="lines-title"> Expenses structure <span class="grey">(' + separateNumber(expensesSumMonth) + '<span class="greysmall"><span class="greysmallval curr"></span>/Month</span>)<span></span></div>')
+	$("#incomes-lines-container").html('<div class="lines-title"> Incomes structure <span class="grey">(' + separateNumber(incomesSumMonth) + '<span class="greysmall"><span class="greysmallval curr"></span>/Month</span>)<span></span></div>')
+
+	var incomesIdSorted = Object.keys(incomes).sort(function(a,b){return incomes[b].converted - incomes[a].converted});
+	var expensesIdSorted = Object.keys(expenses).sort(function(a,b){return expenses[b].converted - expenses[a].converted});
+
 	initlines = function(column) {
 		var container, idSorted, maxConvertedId, i;
 		if (column == incomes) {container = "#incomes-lines-container"; idSorted = incomesIdSorted; maxConvertedId = incomesIdSorted[0]; sum = incomesSumMonth; i=0}
 		else {container = "#expenses-lines-container"; idSorted = expensesIdSorted; maxConvertedId = expensesIdSorted[0]; sum = expensesSumMonth; i=100}
 
 		idSorted.forEach(function(id) {
-			$(container).append('<div id="line-' + i + '" class="itemline"><span class="lineitemtitle lightcircletitle">' + column[id].title + '</span><div class="lineitempercent">'+ Math.round(100 * column[id].converted / sum) +'%</div><div class="lineitemvalue">' + separateNumber(Math.round(column[id].converted)) + ' <span class="boldcircletitle curr lineitemcurr"></span><span class="lightcircletitle lineitemcurr">' + language.perMonth + '</span></div><div class="leftpoint"></div><div id="linebackground-'+ i +'" class="itemlinebackground"></div></div>');
+			$(container).append('<div id="line-' + i + '" class="itemline"><span class="lineitemtitle lightcircletitle">' + column[id].title + '</span><div class="lineitempercent">'+ Math.round(100 * column[id].converted / sum) +'%</div><div class="lineitemvalue">' + separateNumber(Math.round(column[id].converted)) + ' <span class="boldcircletitle curr lineitemcurr"></span><span class="lightcircletitle lineitemcurr">/Month</span></div><div class="leftpoint"></div><div id="linebackground-'+ i +'" class="itemlinebackground"></div></div>');
 			$("#line-" + i).data({"item": column[id]}).css({"width": Math.round(100 * column[ id ].converted / column[maxConvertedId].converted ) + "%"});
 			$("#linebackground-" + i).addClass(column[id].icon);
 			i++;
 		});
 		$("#line-0, #line-100").addClass("activeline");
 	}
-	// Launch filling lines containers
-	initlines(incomes);	initlines(expenses);
 
+	initlines(incomes);
+	initlines(expenses);
 
 	// FUTURE SAVINGS CALCULATION
 	initSavingsCircles = function (slidervalue, lastslidervalue, beforevalue, beforemiddlevalue, animatetime) {
@@ -417,7 +423,7 @@ function initStatisticPage() {
 	// Change currency stuff
 	$("#rubcurr, #eurcurr, #usdcurr").removeClass("currchecked");
 	switch (user.checkedCurr) {
-		case "rub": $(".curr").html(" Rub ").data("curr", " r."); $(".savings-circle-currency").html(" Rubles "); $("#rubcurr").addClass("currchecked");
+		case "rub": $(".curr").html(" Rub ").data("curr", " rub."); $(".savings-circle-currency").html(" Rubles "); $("#rubcurr").addClass("currchecked");
 			break;
 		case "eur": $(".curr, .savings-circle-currency").html(" Eur ").data("curr", " \u20ac"); $("#eurcurr").addClass("currchecked");
 			break;
@@ -427,7 +433,7 @@ function initStatisticPage() {
 
 	if (incomesSumMonth > expensesSumMonth) {
 		setTimeout(function() {
-			$(".topmaincircletitle").html(language.spareMoney);
+			$(".topmaincircletitle").html("Spare");
 			simpleanimatecircle.call($("#inner-circle"), 0, 100, 1200);
 			$("#outer-circle-value").css({"color": "black"});
 			$("#incomes-cursor").hide();
@@ -436,7 +442,7 @@ function initStatisticPage() {
 	}
 	else {
 		setTimeout(function() {
-			$(".topmaincircletitle").html(language.lossMoney);
+			$(".topmaincircletitle").html("Loss");
 			simpleanimatecircle.call($("#inner-circle"), 0, 100, 800);
 			$("#outer-circle-value").css({"color": "#eaa7a7"});
 			$("#expense-cursor").hide();
@@ -543,7 +549,9 @@ function simpleanimatecircle(before, after, duration) {
 	});
 }
 
-// EVENT HANDLERS
+/**
+ * EVENT HANDLERS
+ */
 
 // Currency buttons
 $(".currunchecked").click(function() {
@@ -563,7 +571,7 @@ $(".currunchecked").click(function() {
 	initCircle("first", $("#first-circle").data("item"), 0);
 	initCircle("second", $("#second-circle").data("item"), 0);
 	initCircle("third", $("#third-circle").data("item"), 0);
-	// Update savings slider
+
 	$('#savings-slider').noUiSlider({
 		start: (incomesSumMonth-expensesSumMonth) * $("#savings-slider").data("checkedPercent"),
 		step: (incomesSumMonth-expensesSumMonth) / 20,
@@ -574,7 +582,6 @@ $(".currunchecked").click(function() {
 	}, true);
 });
 
-// Large circle
 $("#outermaindiv, #incomes-cursor, #expense-cursor, .lines-title").click(function() {
 	setTimeout(function() { $("#expenses-lines-container, #incomes-lines-container").toggle(); }, 250);
 	$("#expense-cursor, #incomes-cursor").toggle(300);
@@ -582,13 +589,11 @@ $("#outermaindiv, #incomes-cursor, #expense-cursor, .lines-title").click(functio
 	$("#line-0, #line-100").addClass("activeline");
 });
 
-// Lines hover
 $("#expenses-lines-container, #incomes-lines-container").on("hover", ".itemline", function() {
 	$(".itemline").removeClass("activeline");
 	$(this).addClass("activeline");
 });
 
-// Lines click
 $("#expenses-lines-container, #incomes-lines-container").on("click", ".itemline", function() {
 	$(".itemline").removeClass("activeline");
 	$(this).addClass("activeline");
@@ -598,13 +603,10 @@ $("#expenses-lines-container, #incomes-lines-container").on("click", ".itemline"
 	initCircle("third", item, 0);
 });
 
-
-// Launch small circles flipper
 $("#firstcirclediv, #secondcirclediv, #thirdcirclediv").click(function() {
 	$("#" + this.id + "flipper").toggleClass("flippedcard");
 });
 
-// Select item in circles
 $("#circle-select-1, #circle-select-2, #circle-select-3").on("change", function() {
 	var column, item,
 			circle = this.id,
@@ -630,7 +632,6 @@ $("#circle-select-1, #circle-select-2, #circle-select-3").on("change", function(
 	$("#" + circle + "-back").removeClass().addClass( column[item].icon );
 });
 
-// Savings slider
 function initSavingsSlider() {
 	var Link = $.noUiSlider.Link,
 			sub;
@@ -659,7 +660,6 @@ function initSavingsSlider() {
 	});
 }
 
-// Saving slide handler
 $('#savings-slider').on('slide', function() {
 	var lastVal = $("#after-savings-value").data("lastvalue"),
 			animatetime;
@@ -668,7 +668,6 @@ $('#savings-slider').on('slide', function() {
 	initSavingsCircles($("#savings-slider").data("checkedPercent"), $("#savings-slider").data("lastpercent"), lastVal, $("#after-savings-value").data("lastmiddlevalue"), animatetime);
 });
 
-// CANVAS MOVING CIRCLES
 (function(){
 	var canvas1 = document.getElementById("movingcircle-1"),
 			canvas2 = document.getElementById("movingcircle-2"),
@@ -702,13 +701,11 @@ $('#savings-slider').on('slide', function() {
 	ctx3.stroke();
 })();
 
-// CANVAS SAVINGS CHART
-// Draw chart stuff
 (function(){
 	var canvas = document.getElementById("horizontal"),
 			currentDate = new Date(),
 			currentMonth = currentDate.getMonth(),
-			allMonths = language.allMonths;
+			allMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 	if (canvas.getContext) {
 		var ctx = canvas.getContext("2d");
 		ctx.canvas.width  = $("#savingschart").width();
