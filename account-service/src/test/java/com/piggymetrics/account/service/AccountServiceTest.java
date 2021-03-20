@@ -54,6 +54,26 @@ public class AccountServiceTest {
 	}
 
 	@Test
+	public void shouldCreateAccountWithGivenUser() {
+
+		User user = new User();
+		user.setUsername("test");
+
+		Account account = accountService.create(user);
+
+		assertEquals(user.getUsername(), account.getName());
+		assertEquals(0, account.getSaving().getAmount().intValue());
+		assertEquals(Currency.getDefault(), account.getSaving().getCurrency());
+		assertEquals(0, account.getSaving().getInterest().intValue());
+		assertEquals(false, account.getSaving().getDeposit());
+		assertEquals(false, account.getSaving().getCapitalization());
+		assertNotNull(account.getLastSeen());
+
+		verify(authClient, times(1)).createUser(user);
+		verify(repository, times(1)).save(account);
+	}
+
+	@Test
 	public void shouldSaveChangesWhenUpdatedAccountGiven() {
 
 		Item grocery = new Item();
@@ -118,24 +138,6 @@ public class AccountServiceTest {
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailWhenExpenesIsEmpty() {
-		final Account update = new Account();
-		update.setIncomes(Arrays.asList(new Item()));
-
-		when(accountService.findByName("test")).thenReturn(new Account());
-		accountService.saveChanges("test", update);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldFailWhenIncomesIsEmpty() {
-		final Account update = new Account();
-		update.setExpenses(Arrays.asList(new Item()));
-
-		when(accountService.findByName("test")).thenReturn(new Account());
-		accountService.saveChanges("test", update);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
 	public void shouldFailWhenNoAccountsExistedWithGivenName() {
 		final Account update = new Account();
 		update.setIncomes(Arrays.asList(new Item()));
@@ -146,22 +148,14 @@ public class AccountServiceTest {
 	}
 
 	@Test
-	public void shouldCreateAccountWithGivenUser() {
+	public void shouldNotFailOnStatisticsClientException() {
+		final Account update = new Account();
+		update.setIncomes(Arrays.asList(new Item()));
+		update.setExpenses(Arrays.asList(new Item()));
 
-		User user = new User();
-		user.setUsername("test");
+		when(accountService.findByName("test")).thenReturn(new Account());
+		doThrow(RuntimeException.class).when(statisticsClient).updateStatistics(any(), any());
 
-		Account account = accountService.create(user);
-
-		assertEquals(user.getUsername(), account.getName());
-		assertEquals(0, account.getSaving().getAmount().intValue());
-		assertEquals(Currency.getDefault(), account.getSaving().getCurrency());
-		assertEquals(0, account.getSaving().getInterest().intValue());
-		assertEquals(false, account.getSaving().getDeposit());
-		assertEquals(false, account.getSaving().getCapitalization());
-		assertNotNull(account.getLastSeen());
-
-		verify(authClient, times(1)).createUser(user);
-		verify(repository, times(1)).save(account);
+		accountService.saveChanges("test", update);
 	}
 }

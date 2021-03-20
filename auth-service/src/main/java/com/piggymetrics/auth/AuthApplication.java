@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -14,7 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -26,6 +27,7 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 
 @SpringBootApplication
 @EnableResourceServer
+@EnableDiscoveryClient
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class AuthApplication {
 
@@ -52,13 +54,8 @@ public class AuthApplication {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
-			// .passwordEncoder(passwordEncoder()); TODO
-		}
-
-		@Bean
-		public PasswordEncoder passwordEncoder() {
-			return new BCryptPasswordEncoder();
+			auth.userDetailsService(userDetailsService)
+					.passwordEncoder(new BCryptPasswordEncoder());
 		}
 
 		@Override
@@ -81,28 +78,32 @@ public class AuthApplication {
 		@Autowired
 		private MongoUserDetailsService userDetailsService;
 
+		@Autowired
+		private Environment env;
+
 		@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-			// TODO
+
+			// TODO persist clients details
+
 			// @formatter:off
 			clients.inMemory()
 					.withClient("browser")
-					.secret("password")
 					.authorizedGrantTypes("refresh_token", "password")
 					.scopes("ui")
 			.and()
 					.withClient("account-service")
-					.secret("password")
+					.secret(env.getProperty("ACCOUNT_SERVICE_PASSWORD"))
 					.authorizedGrantTypes("client_credentials", "refresh_token")
 					.scopes("server")
 			.and()
 					.withClient("statistics-service")
-					.secret("password")
+					.secret(env.getProperty("STATISTICS_SERVICE_PASSWORD"))
 					.authorizedGrantTypes("client_credentials", "refresh_token")
 					.scopes("server")
 			.and()
 					.withClient("notification-service")
-					.secret("password")
+					.secret(env.getProperty("NOTIFICATION_SERVICE_PASSWORD"))
 					.authorizedGrantTypes("client_credentials", "refresh_token")
 					.scopes("server");
 			// @formatter:on

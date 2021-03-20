@@ -81,9 +81,6 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public void saveChanges(String name, Account update) {
 
-		Assert.notEmpty(update.getExpenses());
-		Assert.notEmpty(update.getIncomes());
-
 		Account account = repository.findByName(name);
 		Assert.notNull(account, "can't find account with name " + name);
 
@@ -95,6 +92,10 @@ public class AccountServiceImpl implements AccountService {
 
 		repository.save(account);
 
-		statisticsClient.updateStatistics(name, account);
+		try {
+			statisticsClient.updateStatistics(name, account);
+		} catch (Exception e) {
+			log.error("error during statistics update", e);
+		}
 	}
 }

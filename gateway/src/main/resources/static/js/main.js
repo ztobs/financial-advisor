@@ -1,72 +1,69 @@
-//function jsonParse(obj) {
-//	if (typeof obj != 'undefined') {
-//		user = new User (obj.username, obj.lastVisit, obj.userpic, obj.usd, obj.eur, obj.checkedCurrency, obj.lastCurrency, obj.sliderValue, obj.note);
-//		savings = new Savings (obj.money, !!Number(obj.deposit), !!Number(obj.capitalization), obj.interest);
-//
-//		if (obj.data !== null) {
-//			expenses = sanitize(JSON.parse(obj.data).expenses);
-//			incomes = sanitize(JSON.parse(obj.data).incomes);
-//		}
-//	}
-//}
+var user = {},
+    savings = {},
+    incomes = {},
+    expenses = {};
 
-function testFillObjects() {
-    user = new User ("sqshq", "01/02/2014", "rub", "rub", 0.8, "Зарплата приходит на карточку 11 числа\n\n\nСтипуха - 15-го\n\n\n\n===\n\nСпрятал заначку в гараже 22к");
-    savings = new Savings ("120000", true, true, "10");
-    AddIncome("1", "Зарплата", "wallet", "rub", "month", "96000");
-    AddIncome("2", "Стипендия", "edu", "rub", "month", "10000");
-    AddExpense("1", "Обслуживание авто", "auto", "rub", "month", "36000");
-    AddExpense("2", "Бензин", "gas", "rub", "month", "4000");
-    AddExpense("3", "Продукты", "meal", "rub", "month", "5200");
-    AddExpense("4", "Аренда квартиры", "home", "rub", "month", "15000");
-    AddExpense("5", "Коммуналка", "utilities", "rub", "month", "1500");
-    AddExpense("6", "Шмотки", "clothes", "rub", "quarter", "2300");
-    AddExpense("7", "Отпуск", "island", "euro", "year", "1800");
-    AddExpense("8", "Сигареты", "smoking", "rub", "day", "100");
+function initAccount(account) {
+    user = new User(account.name, account.lastSeen, account.saving.currency, account.note);
+    savings = new Savings (account.saving.amount, account.saving.deposit, account.saving.capitalization, account.saving.interest);
+
+    if (account.incomes) {
+        for (i = 0; i < account.incomes.length; i++) {
+            AddIncome(i + 1, account.incomes[i].title, account.incomes[i].icon, account.incomes[i].currency, account.incomes[i].period, account.incomes[i].amount);
+        }
+    }
+
+    if (account.expenses) {
+        for (j = 0; j < account.expenses.length; j++) {
+            AddExpense(j + 1, account.expenses[j].title, account.expenses[j].icon, account.expenses[j].currency, account.expenses[j].period, account.expenses[j].amount);
+        }
+    }
 }
 
-var user = {};
-function User(username, lastVisit, checkedCurrency, lastCurrency, sliderValue, note) {
+function User(username, lastSeen, currency, note) {
+
+    var seen = new Date(lastSeen);
+
     this.login = username;
-    this.lastVisit = lastVisit;
-    this.checkedCurr = checkedCurrency;
-    this.lastCurr = lastCurrency;
-    this.checkedPercent = sliderValue;
+    this.lastSeen = (seen.getMonth() + 1) + "/" + seen.getDate()  + "/" + seen.getFullYear();;
+    this.checkedCurr = currency;
+    this.lastCurr = currency;
+    this.checkedPercent = 1;
     this.notes = note;
 }
-var savings = {};
+
 function Savings(money, deposit, capitalization, interest) {
     this.freeMoney = money;
     this.deposit = deposit;
     this.capitalization = capitalization;
     this.percent = interest;
 }
-var incomes = {};
-function AddIncome(income_id, title, icon, currency, period, value){
+
+function AddIncome(income_id, title, icon, currency, period, amount){
     incomes[income_id] = {
         income_id: income_id,
         title: title,
         icon: icon,
         currency: currency,
         period: period,
-        value: value
+        amount: amount.toString()
     }
 }
-var expenses = {};
-function AddExpense(expense_id, title, icon, currency, period, value){
+
+function AddExpense(expense_id, title, icon, currency, period, amount){
     expenses[expense_id] = {
         expense_id: expense_id,
         title: title,
         icon: icon,
         currency: currency,
         period: period,
-        value: value
+        amount: amount.toString()
     }
 }
 
 // Log out button
 $('#minus').click(function() {
-    $('#logout').submit();
+    logout();
 });
 
 var entityMap = {
@@ -95,7 +92,6 @@ function sanitize(obj) {
     return obj;
 }
 
-
 function initGreetingPage() {
 
     $("#preloader, #lastlogo").show();
@@ -123,7 +119,7 @@ function initGreetingPage() {
     $("#savings-slider").data({"checkedPercent": user.checkedPercent});
 
     $("#lefttitle").prepend(escape(user.login));
-    $("#righttitle").append(user.lastVisit);
+    $("#righttitle").append(user.lastSeen);
 
     // Fill data on settings page beforehand
     addSavings();
@@ -133,11 +129,11 @@ function initGreetingPage() {
 
 function initSettingsPage() {
     switch (user.checkedCurr) {
-        case "rub": $("#rublesign").css({"background-position": "-150px 0"});
+        case "RUB": $("#rublesign").css({"background-position": "-150px 0"});
             break;
-        case "eur": $("#rublesign").css({"background-position": "-386px 0"});
+        case "EUR": $("#rublesign").css({"background-position": "-386px 0"});
             break;
-        case "usd": $("#rublesign").css({"background-position": "-354px 0"});
+        case "USD": $("#rublesign").css({"background-position": "-354px 0"});
             break;
     }
 
@@ -172,7 +168,7 @@ function greetingPageAgain() {
         setTimeout(initSettingsPage, 200);
     });
     $("#righttitle, #lefttitle").empty();
-    $("#righttitle").append('<span class="bluetext">last seen: </span>' + user.lastVisit);
+    $("#righttitle").append('<span class="bluetext">last seen: </span>' + user.lastSeen);
     $("#lefttitle").append(escape(user.login) + '<span class="bluetext"> metrics</span>');
 }
 function showGreetingUnits() {
@@ -210,15 +206,15 @@ function addSavings() {
 
 // Filling Incomes and Expenses columns
 function addItems() {
-    Object.keys(incomes).forEach(function(keys) {
-        var value = incomes[keys].value.replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 </span><span class="lightdigit20">');
-        $("#incomeslider").append('<div onclick="itemClick(this)" class="incomeitem" id="income-' + incomes[keys].income_id + '"><span class="title11museo300">' + incomes[keys].title + '</span><p class="title9museo300"><span class="bolddigit20">' + value + ' </span>' + checkCurrency(incomes[keys].currency) + checkPeriod(incomes[keys].period) + '</span></p><div class="itembackground"></div></div>');
-        $("#income-" + incomes[keys].income_id).data({"id": incomes[keys].income_id, "icon": incomes[keys].icon, "value": incomes[keys].value, "title": incomes[keys].title, "currency": incomes[keys].currency ,"period": incomes[keys].period}).children("div").addClass(incomes[keys].icon);
+    Object.keys(incomes).forEach(function(key) {
+        var value = incomes[key].amount.replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 </span><span class="lightdigit20">');
+        $("#incomeslider").append('<div onclick="itemClick(this)" class="incomeitem" id="income-' + incomes[key].income_id + '"><span class="title11museo300">' + incomes[key].title + '</span><p class="title9museo300"><span class="bolddigit20">' + value + ' </span>' + checkCurrency(incomes[key].currency) + checkPeriod(incomes[key].period) + '</span></p><div class="itembackground"></div></div>');
+        $("#income-" + incomes[key].income_id).data({"id": incomes[key].income_id, "icon": incomes[key].icon, "value": incomes[key].amount, "title": incomes[key].title, "currency": incomes[key].currency ,"period": incomes[key].period}).children("div").addClass(incomes[key].icon);
     });
-    Object.keys(expenses).forEach(function(keys) {
-        var value = expenses[keys].value.replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 </span><span class="lightdigit20">');
-        $("#expenseslider").append('<div onclick="itemClick(this)" class="expenseitem" id="expense-' + expenses[keys].expense_id + '"><span class="title11museo300">' + expenses[keys].title + '</span><p class="title9museo300"><span class="bolddigit20">' + value + ' </span>' + checkCurrency(expenses[keys].currency) + checkPeriod(expenses[keys].period) + '</span></p><div class="itembackground"></div></div>');
-        $("#expense-" + expenses[keys].expense_id).data({"id": expenses[keys].expense_id, "icon": expenses[keys].icon, "value": expenses[keys].value, "title": expenses[keys].title, "currency": expenses[keys].currency ,"period": expenses[keys].period}).children("div").addClass(expenses[keys].icon);
+    Object.keys(expenses).forEach(function(key) {
+        var value = expenses[key].amount.replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 </span><span class="lightdigit20">');
+        $("#expenseslider").append('<div onclick="itemClick(this)" class="expenseitem" id="expense-' + expenses[key].expense_id + '"><span class="title11museo300">' + expenses[key].title + '</span><p class="title9museo300"><span class="bolddigit20">' + value + ' </span>' + checkCurrency(expenses[key].currency) + checkPeriod(expenses[key].period) + '</span></p><div class="itembackground"></div></div>');
+        $("#expense-" + expenses[key].expense_id).data({"id": expenses[key].expense_id, "icon": expenses[key].icon, "value": expenses[key].amount, "title": expenses[key].title, "currency": expenses[key].currency ,"period": expenses[key].period}).children("div").addClass(expenses[key].icon);
     });
 
     // Show big ADD ITEM button when column is empty
@@ -265,19 +261,19 @@ function checkSlidersLength() {
 function checkPeriod(period) {
     var periodText;
     switch (period) {
-        case "year":
+        case "YEAR":
             periodText = " / per year";
             break;
-        case "quarter":
+        case "QUARTER":
             periodText = " / per quater";
             break;
-        case "month":
+        case "MONTH":
             periodText = " / per month";
             break;
-        case "day":
+        case "DAY":
             periodText = " / per day";
             break;
-        case "hour":
+        case "HOUR":
             periodText = " / per hour";
             break;
     }
@@ -287,11 +283,11 @@ function checkPeriod(period) {
 function checkCurrency(currency) {
     var currencyText;
     switch (currency) {
-        case "rub": currencyText="rub.";
+        case "RUB": currencyText="rub.";
             break;
-        case "doll": currencyText="$";
+        case "USD": currencyText="$";
             break;
-        case "euro": currencyText="&euro;";
+        case "EUR": currencyText="&euro;";
             break;
     }
     return currencyText
@@ -724,11 +720,11 @@ function moveRuble() {
 //SAVINGS: change currency on sign click
 $("#rublesign").on("click", function() {
     switch (user.checkedCurr) {
-        case "rub": user.checkedCurr = "eur"; $("#rublesign").css({"background-position": "-386px 0"});
+        case "RUB": user.checkedCurr = "EUR"; $("#rublesign").css({"background-position": "-386px 0"});
             break;
-        case "eur": user.checkedCurr = "usd"; $("#rublesign").css({"background-position": "-354px 0"});
+        case "EUR": user.checkedCurr = "USD"; $("#rublesign").css({"background-position": "-354px 0"});
             break;
-        case "usd": user.checkedCurr = "rub"; $("#rublesign").css({"background-position": "-150px 0"});
+        case "USD": user.checkedCurr = "RUB"; $("#rublesign").css({"background-position": "-150px 0"});
             break;
     }
     changeCurrency();
@@ -870,42 +866,46 @@ function launchStatistic() {
 }
 
 function jsonDataSave() {
-    if (user.login !== undefined && global.savePermit) {
-
-        var saveOptions = {
-            datatype: 	"json",
-            data: {
-                checkedCurrency: user.checkedCurr,
-                lastCurrency: user.lastCurr,
-                sliderValue: $("#savings-slider").data("checkedPercent"),
+    if (global.savePermit) {
+        $.ajax({
+            url: 'accounts/current',
+            datatype: 'json',
+            type: "put",
+            contentType: "application/json",
+            headers: {'Authorization': 'Bearer ' + getOauthTokenFromStorage()},
+            data: JSON.stringify({
                 note: user.notes,
-                money: Math.ceil(savings.freeMoney),
-                deposit: +savings.deposit,
-                capitalization: +savings.capitalization,
-                interest: savings.percent,
-                usd: global.usd,
-                eur: global.eur,
-                data: JSON.stringify({incomes: incomes, expenses: expenses})
+                incomes: $.map(incomes, function(value) {return [value]}),
+                expenses: $.map(expenses, function(value) {return [value]}),
+                saving: {
+                    amount: Math.ceil(savings.freeMoney),
+                    capitalization: savings.capitalization,
+                    deposit: savings.deposit,
+                    currency: user.checkedCurr,
+                    interest: savings.percent
+                }
+            }),
+            success: function () {
+                $("#leftborder, #rightborder, #centerborder").addClass("saveaction");
+                setTimeout(function() {
+                    $("#leftborder, #rightborder, #centerborder").removeClass("saveaction");
+                }, 400);
+            },
+            error: function () {
+                alert("An error during data saving. Please, try again later");
             }
-        };
-
-        $("#saveoptions").ajaxSubmit(saveOptions);
-        $("#leftborder, #rightborder, #centerborder").addClass("saveaction");
-
-        setTimeout(function() {
-            $("#leftborder, #rightborder, #centerborder").removeClass("saveaction");
-        }, 400);
+        });
     }
 }
 
 function fadeStatistic() {
 
     switch (user.checkedCurr) {
-        case "rub": $("#rublesign").css({"background-position": "-150px 0"});
+        case "RUB": $("#rublesign").css({"background-position": "-150px 0"});
             break;
-        case "eur": $("#rublesign").css({"background-position": "-386px 0"});
+        case "EUR": $("#rublesign").css({"background-position": "-386px 0"});
             break;
-        case "usd": $("#rublesign").css({"background-position": "-354px 0"});
+        case "USD": $("#rublesign").css({"background-position": "-354px 0"});
             break;
     }
     $("#savingsvalue").autoNumeric('set', savings.freeMoney);

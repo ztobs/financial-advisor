@@ -1,17 +1,36 @@
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 20000
+
+ribbon:
+  ReadTimeout: 20000
+  ConnectTimeout: 20000
+
 zuul:
+  host:
+    connect-timeout-millis: 20000
+    socket-timeout-millis: 20000
+
   routes:
     auth-service:
         path: /uaa/**
-        url: http://localhost:8888
+        url: http://auth-service:5000
         stripPrefix: false
+
     account-service:
         path: /accounts/**
         serviceId: account-service
         stripPrefix: false
+
     statistics-service:
         path: /statistics/**
         serviceId: statistics-service
         stripPrefix: false
+
     notification-service:
         path: /notifications/**
         serviceId: notification-service
@@ -21,4 +40,4 @@ logging:
   level.: INFO
 
 server:
-  port: 7777
+  port: 4000
