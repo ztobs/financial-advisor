@@ -24,8 +24,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 @EnableDiscoveryClient
 @EnableOAuth2Client
 @EnableFeignClients
-@EnableConfigurationProperties
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableConfigurationProperties
 @Configuration
 public class AccountApplication extends ResourceServerConfigurerAdapter {
 
@@ -52,7 +52,7 @@ public class AccountApplication extends ResourceServerConfigurerAdapter {
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
-				.antMatchers("/registration" , "/demo").permitAll()
+				.antMatchers("/" , "/demo").permitAll()
 				.anyRequest().authenticated();
 	}
 }
