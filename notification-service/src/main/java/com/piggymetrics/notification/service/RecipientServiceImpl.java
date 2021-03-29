@@ -21,7 +21,7 @@ public class RecipientServiceImpl implements RecipientService {
 	private RecipientRepository repository;
 
 	@Override
-	public Object getByAccountName(String accountName) {
+	public Recipient findByAccountName(String accountName) {
 		Assert.hasLength(accountName);
 		return repository.findByAccountName(accountName);
 	}
@@ -31,7 +31,17 @@ public class RecipientServiceImpl implements RecipientService {
 
 		Assert.isTrue(accountName.equals(recipient.getAccountName()));
 
-		return repository.save(recipient);
+		recipient.getScheduledNotifications().values()
+				.forEach(settings -> {
+					if (settings.getLastNotified() == null) {
+						settings.setLastNotified(new Date());
+					}
+				});
+
+		repository.save(recipient);
+		log.info("recipient {} settings has been updated", recipient);
+
+		return recipient;
 	}
 
 	@Override
