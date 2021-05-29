@@ -1,7 +1,8 @@
 FROM mongo:3
+MAINTAINER Alexander Lukyanchikov <sqshq@sqshq.com>
 
 ADD init.sh /init.sh
-ADD *.js /
+ADD ./dump /
 
 RUN \
  chmod +x /init.sh && \

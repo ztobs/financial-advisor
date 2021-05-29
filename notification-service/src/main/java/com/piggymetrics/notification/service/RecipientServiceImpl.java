@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class RecipientServiceImpl implements RecipientService {
 
-	public static final Logger log = LoggerFactory.getLogger(RecipientServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private RecipientRepository repository;
@@ -26,11 +26,13 @@ public class RecipientServiceImpl implements RecipientService {
 		return repository.findByAccountName(accountName);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Recipient save(String accountName, Recipient recipient) {
 
-		Assert.isTrue(accountName.equals(recipient.getAccountName()));
-
+		recipient.setAccountName(accountName);
 		recipient.getScheduledNotifications().values()
 				.forEach(settings -> {
 					if (settings.getLastNotified() == null) {
@@ -39,11 +41,15 @@ public class RecipientServiceImpl implements RecipientService {
 				});
 
 		repository.save(recipient);
+
 		log.info("recipient {} settings has been updated", recipient);
 
 		return recipient;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Recipient> findReadyToNotify(NotificationType type) {
 		switch (type) {
@@ -56,6 +62,9 @@ public class RecipientServiceImpl implements RecipientService {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void markNotified(NotificationType type, Recipient recipient) {
 		recipient.getScheduledNotifications().get(type).setLastNotified(new Date());

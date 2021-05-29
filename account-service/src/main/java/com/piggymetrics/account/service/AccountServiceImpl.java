@@ -19,7 +19,7 @@ import java.util.Date;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-	private static final Logger log = LoggerFactory.getLogger(AccountServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private StatisticsServiceClient statisticsClient;
@@ -83,15 +83,10 @@ public class AccountServiceImpl implements AccountService {
 		account.setSaving(update.getSaving());
 		account.setNote(update.getNote());
 		account.setLastSeen(new Date());
-
 		repository.save(account);
 
 		log.debug("account {} changes has been saved", name);
 
-		try {
-			statisticsClient.updateStatistics(name, account);
-		} catch (Exception e) {
-			log.error("error during statistics update", e);
-		}
+		statisticsClient.updateStatistics(name, account);
 	}
 }

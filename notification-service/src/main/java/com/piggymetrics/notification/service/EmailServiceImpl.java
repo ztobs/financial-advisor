@@ -1,16 +1,17 @@
 package com.piggymetrics.notification.service;
 
-import com.google.common.base.Strings;
 import com.piggymetrics.notification.domain.NotificationType;
 import com.piggymetrics.notification.domain.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -18,9 +19,10 @@ import java.io.IOException;
 import java.text.MessageFormat;
 
 @Service
+@RefreshScope
 public class EmailServiceImpl implements EmailService {
 
-	public static final Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	private JavaMailSender mailSender;
@@ -41,12 +43,12 @@ public class EmailServiceImpl implements EmailService {
 		helper.setSubject(subject);
 		helper.setText(text);
 
-		if (!Strings.isNullOrEmpty(attachment)) {
+		if (StringUtils.hasLength(attachment)) {
 			helper.addAttachment(env.getProperty(type.getAttachment()), new ByteArrayResource(attachment.getBytes()));
 		}
 
 		mailSender.send(message);
 
-		log.info("An email {} notification has been send to {}", type, recipient.getEmail());
+		log.info("{} email notification has been send to {}", type, recipient.getEmail());
 	}
 }
