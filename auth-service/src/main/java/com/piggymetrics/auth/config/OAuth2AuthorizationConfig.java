@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
@@ -22,6 +23,7 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 public class OAuth2AuthorizationConfig extends AuthorizationServerConfigurerAdapter {
 
     private TokenStore tokenStore = new InMemoryTokenStore();
+    private final String NOOP_PASSWORD_ENCODE = "{noop}";
 
     @Autowired
     @Qualifier("authenticationManagerBean")
@@ -73,6 +75,8 @@ public class OAuth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
         oauthServer
                 .tokenKeyAccess("permitAll()")
-                .checkTokenAccess("isAuthenticated()");
+                .checkTokenAccess("isAuthenticated()")
+                .passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
+
 }

@@ -17,8 +17,9 @@ spring:
       port: 27017
 
 server:
-  context-path: /statistics
+  servlet:
+    context-path: /statistics
   port: 7000
 
 rates:
-  url: https://exchangeratesapi.io/api
+  url: https://api.exchangeratesapi.io
